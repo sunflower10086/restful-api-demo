@@ -29,6 +29,10 @@ type Host struct {
 	*Describe
 }
 
+func NewHost() *Host {
+	return &Host{&Resource{}, &Describe{}}
+}
+
 type Vendor int
 
 const (

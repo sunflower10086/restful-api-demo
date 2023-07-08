@@ -1,20 +1,48 @@
 package conf
 
+// 设置为私有变量，防止被篡改
+var config = new(Config)
+
+func C() *Config {
+	return config
+}
+
+// NewDefaultConfig 带有默认值的Config的对象
+func NewDefaultConfig() *Config {
+	return &Config{
+		App:   NewDefaultApp(),
+		Log:   NewDefaultLog(),
+		MySQL: NewDefaultMySQL(),
+	}
+}
+
 // Config 应用配置
 type Config struct {
-	App   *app   `toml:"app"`
+	App   *App   `toml:"app"`
 	Log   *Log   `toml:"log"`
 	MySQL *MySQL `toml:"mysql"`
 }
 
-type app struct {
-	Name      string `toml:"name" env:"APP_NAME"`
-	Host      string `toml:"host" env:"APP_HOST"`
-	Port      string `toml:"port" env:"APP_PORT"`
-	Key       string `toml:"key" env:"APP_KEY"`
-	EnableSSL bool   `toml:"enable_ssl" env:"APP_ENABLE_SSL"`
-	CertFile  string `toml:"cert_file" env:"APP_CERT_FILE"`
-	KeyFile   string `toml:"key_file" env:"APP_KEY_FILE"`
+func NewDefaultApp() *App {
+	return &App{
+		Name: "demo",
+		Host: "127.0.0.1",
+		Port: "8080",
+	}
+}
+
+type App struct {
+	Name string `toml:"name" env:"APP_NAME"`
+	Host string `toml:"host" env:"APP_HOST"`
+	Port string `toml:"port" env:"APP_PORT"`
+}
+
+func NewDefaultLog() *Log {
+	return &Log{
+		Level:  "info",
+		Format: TextFormat,
+		To:     ToStdout,
+	}
 }
 
 // Log todo
@@ -36,4 +64,16 @@ type MySQL struct {
 	MaxIdleConn int    `toml:"max_idle_conn" env:"MYSQL_MAX_IDLE_CONN"`
 	MaxLifeTime int    `toml:"max_life_time" env:"MYSQL_MAX_LIFE_TIME"`
 	MaxIdleTime int    `toml:"max_idle_time" env:"MYSQL_MAX_idle_TIME"`
+}
+
+func NewDefaultMySQL() *MySQL {
+	return &MySQL{
+		Host:        "127.0.0.1",
+		Port:        "3306",
+		UserName:    "root",
+		Password:    "lz187383779974",
+		Database:    "demo",
+		MaxOpenConn: 10,
+		MaxIdleConn: 5,
+	}
 }

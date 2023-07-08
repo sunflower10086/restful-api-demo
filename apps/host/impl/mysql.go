@@ -15,6 +15,6 @@ type HostServiceImpl struct {
 
 func NewHostServiceImpl() *HostServiceImpl {
 	return &HostServiceImpl{
-		l: log.New(os.Stderr, "Host ", log.Ldate|log.Ltime|log.Lshortfile),
+		l: log.New(os.Stderr, "  [Host] ", log.Ldate|log.Ltime|log.Lshortfile),
 	}
 }

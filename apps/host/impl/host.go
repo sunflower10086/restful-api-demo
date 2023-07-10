@@ -3,12 +3,16 @@ package impl
 import (
 	"context"
 
+	"github.com/sunflower10086/restful-api-demo/apps/dao/db"
 	"github.com/sunflower10086/restful-api-demo/apps/host"
 )
 
-func (h *HostServiceImpl) CreateHost(ctx context.Context, h2 *host.Host) (*host.Host, error) {
+func (h *HostServiceImpl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, error) {
 	//TODO implement me
-	h.l.Println("create func")
+
+	if err := db.CreateHost(ins); err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 

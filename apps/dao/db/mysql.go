@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/sunflower10086/restful-api-demo/conf"
@@ -9,7 +10,18 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	db   *gorm.DB
+	once sync.Once
+)
+
+func GetDB() *gorm.DB {
+	var d *gorm.DB
+	once.Do(func() {
+		d = db
+	})
+	return d
+}
 
 func Init() error {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -37,7 +49,7 @@ func Init() error {
 		return err
 	}
 
-	DB = db
+	db = db
 
 	return nil
 }

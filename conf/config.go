@@ -1,5 +1,7 @@
 package conf
 
+import "fmt"
+
 // 设置为私有变量，防止被篡改
 var config = new(Config)
 
@@ -35,6 +37,10 @@ type App struct {
 	Name string `toml:"name" env:"APP_NAME"`
 	Host string `toml:"host" env:"APP_HOST"`
 	Port string `toml:"port" env:"APP_PORT"`
+}
+
+func (a *App) HTTPAddr() string {
+	return fmt.Sprintf("%s:%s", a.Host, a.Port)
 }
 
 func NewDefaultLog() *Log {

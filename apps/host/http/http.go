@@ -15,6 +15,6 @@ type handler struct {
 	svc host.Service
 }
 
-func (h *handler) Register(r *gin.Engine) {
+func (h *handler) RouteRegistry(r *gin.Engine) {
 	r.POST("/hosts", h.createHost)
 }

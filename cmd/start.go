@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -40,9 +39,9 @@ var StartCmd = &cobra.Command{
 		api := myhttp.NewHostHTTPHandler(service)
 
 		g := gin.Default()
-		api.Register(g)
+		api.RouteRegistry(g)
 
-		Run(g, fmt.Sprintf("%s:%s", conf.C().App.Host, conf.C().App.Port), conf.C().App.Name)
+		Run(g, conf.C().App.HTTPAddr(), conf.C().App.Name)
 
 		return nil
 	},

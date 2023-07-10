@@ -10,6 +10,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sunflower10086/restful-api-demo/apps"
+	"github.com/sunflower10086/restful-api-demo/apps/dao/db"
 	"golang.org/x/net/context"
 
 	"github.com/spf13/cobra"
@@ -33,11 +35,19 @@ var StartCmd = &cobra.Command{
 			return err
 		}
 
+		// 启动与mysql的连接
+		if err := db.Init(); err != nil {
+			return err
+		}
 		// 加载服务实现
-		service := impl.NewHostServiceImpl()
+		apps.HostService = impl.NewHostServiceImpl()
 		// 注册HTTP服务
-		api := myhttp.NewHostHTTPHandler(service)
+		api := myhttp.NewHostHTTPHandler()
+		if err := api.Config(); err != nil {
+			return err
+		}
 
+		// 启动服务
 		g := gin.Default()
 		api.RouteRegistry(g)
 

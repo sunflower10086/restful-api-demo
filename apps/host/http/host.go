@@ -19,3 +19,18 @@ func (h *handler) createHost(c *gin.Context) {
 
 	return
 }
+func (h *handler) queryHost(c *gin.Context) {
+	return
+}
+
+func (h *handler) describeHost(c *gin.Context) {
+	return
+}
+
+func (h *handler) updateHost(c *gin.Context) {
+	return
+}
+
+func (h *handler) deleteHost(c *gin.Context) {
+	return
+}

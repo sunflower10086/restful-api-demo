@@ -24,13 +24,14 @@ func GetDB() *gorm.DB {
 }
 
 func Init() error {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.C().MySQL.UserName,
 		conf.C().MySQL.Password,
 		conf.C().MySQL.Host,
 		conf.C().MySQL.Port,
 		conf.C().MySQL.Database,
 	)
+	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err

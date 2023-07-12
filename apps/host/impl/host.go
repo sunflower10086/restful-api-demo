@@ -23,7 +23,7 @@ type HostServiceImpl struct {
 
 // 通过匿名引入可以动态注册我们实现的服务
 func init() {
-	apps.Registry(impl)
+	apps.RegistryImpl(impl)
 }
 
 func (h *HostServiceImpl) Name() string {

@@ -16,7 +16,6 @@ import (
 
 	"github.com/spf13/cobra"
 	_ "github.com/sunflower10086/restful-api-demo/apps/all"
-	myhttp "github.com/sunflower10086/restful-api-demo/apps/host/http"
 	"github.com/sunflower10086/restful-api-demo/conf"
 )
 
@@ -45,17 +44,22 @@ var StartCmd = &cobra.Command{
 		// 通过这个方法去注册一个服务
 		//apps.HostService = impl.NewHostServiceImpl()
 
-		apps.Init()
+		apps.InitImpl()
 
+		// 以后通过Ioc注册中心自动注册HTTP handler
 		// 注册HTTP服务
-		api := myhttp.NewHostHTTPHandler()
-		if err := api.Config(); err != nil {
+		//api := myhttp.NewHostHTTPHandler()
+		//if err := api.Config(); err != nil {
+		//	return err
+		//}
+
+		// 注册一个gin的实例
+		g := gin.Default()
+
+		// 注册所有的 HTTP handler 方法
+		if err := apps.InitGinHandler(g); err != nil {
 			return err
 		}
-
-		// 启动服务
-		g := gin.Default()
-		api.RouteRegistry(g)
 
 		Run(g, conf.C().App.HTTPAddr(), conf.C().App.Name)
 
@@ -92,7 +96,8 @@ func Run(r *gin.Engine, Addr, srvName string) {
 	<-quit
 	log.Printf("Shutdown %s ...\n", srvName)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	timeOut := 2
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("%s Shutdown err: %v\n", srvName, err)
@@ -100,7 +105,7 @@ func Run(r *gin.Engine, Addr, srvName string) {
 	// catching ctx.Done(). timeout of 2 seconds.
 	select {
 	case <-ctx.Done():
-		log.Println("timeout of 2 seconds.")
+		log.Printf("timeout of %d seconds.", timeOut)
 	}
 	log.Printf("%s exiting", srvName)
 }

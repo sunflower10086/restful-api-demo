@@ -5,7 +5,7 @@ import (
 	"github.com/sunflower10086/restful-api-demo/apps/host"
 )
 
-func (h *handler) createHost(c *gin.Context) {
+func (h *Handler) createHost(c *gin.Context) {
 	ins := host.NewHost()
 	if err := c.ShouldBind(&ins); err != nil {
 		c.JSON(-1, "error")
@@ -19,18 +19,18 @@ func (h *handler) createHost(c *gin.Context) {
 
 	return
 }
-func (h *handler) queryHost(c *gin.Context) {
+func (h *Handler) queryHost(c *gin.Context) {
 	return
 }
 
-func (h *handler) describeHost(c *gin.Context) {
+func (h *Handler) describeHost(c *gin.Context) {
 	return
 }
 
-func (h *handler) updateHost(c *gin.Context) {
+func (h *Handler) updateHost(c *gin.Context) {
 	return
 }
 
-func (h *handler) deleteHost(c *gin.Context) {
+func (h *Handler) deleteHost(c *gin.Context) {
 	return
 }

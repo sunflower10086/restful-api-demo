@@ -5,20 +5,40 @@ import (
 	"log"
 	"os"
 
+	"github.com/sunflower10086/restful-api-demo/apps"
 	"github.com/sunflower10086/restful-api-demo/apps/dao/db"
 	"github.com/sunflower10086/restful-api-demo/apps/host"
 )
 
-var _ host.Service = &HostServiceImpl{}
+var impl = &HostServiceImpl{}
+
+/*
+	之前都是手动把实现的服务注册到IOC层的
+	apps.HostService = impl.NewHostServiceImpl()
+*/
 
 type HostServiceImpl struct {
 	l *log.Logger
+}
+
+// 通过匿名引入可以动态注册我们实现的服务
+func init() {
+	apps.Registry(impl)
+}
+
+func (h *HostServiceImpl) Name() string {
+	return apps.AppName
+}
+
+func (h *HostServiceImpl) Config() {
+	h.l = log.New(os.Stderr, "  [Host] ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 func NewHostServiceImpl() *HostServiceImpl {
 	return &HostServiceImpl{
 		l: log.New(os.Stderr, "  [Host] ", log.Ldate|log.Ltime|log.Lshortfile),
 	}
+
 }
 
 func (h *HostServiceImpl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, error) {

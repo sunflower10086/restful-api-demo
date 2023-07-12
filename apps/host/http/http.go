@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sunflower10086/restful-api-demo/apps"
@@ -27,5 +28,7 @@ func (h *handler) Config() error {
 
 func (h *handler) RouteRegistry(r *gin.Engine) {
 	r.POST("/hosts", h.createHost)
-	r.GET("/")
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, "hello, world")
+	})
 }

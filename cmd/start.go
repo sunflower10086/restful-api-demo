@@ -15,8 +15,8 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/spf13/cobra"
+	_ "github.com/sunflower10086/restful-api-demo/apps/all"
 	myhttp "github.com/sunflower10086/restful-api-demo/apps/host/http"
-	"github.com/sunflower10086/restful-api-demo/apps/host/impl"
 	"github.com/sunflower10086/restful-api-demo/conf"
 )
 
@@ -39,8 +39,14 @@ var StartCmd = &cobra.Command{
 		if err := db.Init(); err != nil {
 			return err
 		}
-		// 加载服务实现
-		apps.HostService = impl.NewHostServiceImpl()
+
+		// 注册服务到IOC
+		// _ "github.com/sunflower10086/restful-api-demo/apps/host/impl"
+		// 通过这个方法去注册一个服务
+		//apps.HostService = impl.NewHostServiceImpl()
+
+		apps.Init()
+
 		// 注册HTTP服务
 		api := myhttp.NewHostHTTPHandler()
 		if err := api.Config(); err != nil {

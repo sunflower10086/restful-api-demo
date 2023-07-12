@@ -5,18 +5,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
-
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/sunflower10086/restful-api-demo/apps"
-	"github.com/sunflower10086/restful-api-demo/apps/dao/db"
-	"golang.org/x/net/context"
 
 	"github.com/spf13/cobra"
+	"github.com/sunflower10086/restful-api-demo/apps"
 	_ "github.com/sunflower10086/restful-api-demo/apps/all"
+	"github.com/sunflower10086/restful-api-demo/apps/dao/db"
 	"github.com/sunflower10086/restful-api-demo/conf"
+	"github.com/sunflower10086/restful-api-demo/protocol"
 )
 
 var (
@@ -44,6 +39,7 @@ var StartCmd = &cobra.Command{
 		// 通过这个方法去注册一个服务
 		//apps.HostService = impl.NewHostServiceImpl()
 
+		// 注册服务到IOC
 		apps.InitImpl()
 
 		// 以后通过Ioc注册中心自动注册HTTP handler
@@ -53,59 +49,64 @@ var StartCmd = &cobra.Command{
 		//	return err
 		//}
 
-		// 注册一个gin的实例
-		g := gin.Default()
+		//// 注册一个gin的实例
+		//g := gin.Default()
+		//
+		//// 注册所有的 HTTP handler 方法
+		//if err := apps.InitGinHandler(g); err != nil {
+		//	return err
+		//}
+		//
+		//Run(g, conf.C().App.HTTPAddr(), conf.C().App.Name)
 
-		// 注册所有的 HTTP handler 方法
-		if err := apps.InitGinHandler(g); err != nil {
-			return err
-		}
+		master := newMaster()
 
-		Run(g, conf.C().App.HTTPAddr(), conf.C().App.Name)
+		// 相当于监听一下 kill -2 和 kill -9
+		quit := make(chan os.Signal)
+		// kill (no param) default send syscanll.SIGTERM
+		// kill -2 is syscall.SIGINT (Ctrl + C)
+		// kill -9 is syscall.SIGKILL
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-		return nil
+		go master.WaitStop(quit)
+
+		return master.Start()
 	},
+}
+
+func newMaster() *master {
+	return &master{
+		http: protocol.NewHTTPService(),
+	}
+}
+
+type master struct {
+	http *protocol.HTTPService
+}
+
+func (m *master) Start() error {
+	if err := m.http.Start(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *master) Stop() {
+	log.Printf("Shutdown %s ...\n", m.http.Conf.App.Name)
+}
+
+func (m *master) WaitStop(quit <-chan os.Signal) {
+	for v := range quit {
+		switch v {
+		default:
+			m.http.L.Printf("received signal: %s", v)
+			m.http.Stop()
+		}
+	}
 }
 
 func init() {
 
 	StartCmd.PersistentFlags().StringVarP(&configFile, "config", "f", "./etc/demo.toml", "demo config file")
 	RootCmd.AddCommand(StartCmd)
-}
-
-func Run(r *gin.Engine, Addr, srvName string) {
-	srv := &http.Server{
-		Addr:    Addr,
-		Handler: r,
-	}
-
-	// 保证优雅启停
-	go func() {
-		log.Printf("%s running in %s \n", srvName, srv.Addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
-		}
-	}()
-
-	// 相当于监听一下 kill -2 和 kill -9
-	quit := make(chan os.Signal)
-	// kill (no param) default send syscanll.SIGTERM
-	// kill -2 is syscall.SIGINT (Ctrl + C)
-	// kill -9 is syscall. SIGKILL
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Printf("Shutdown %s ...\n", srvName)
-
-	timeOut := 2
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("%s Shutdown err: %v\n", srvName, err)
-	}
-	// catching ctx.Done(). timeout of 2 seconds.
-	select {
-	case <-ctx.Done():
-		log.Printf("timeout of %d seconds.", timeOut)
-	}
-	log.Printf("%s exiting", srvName)
 }

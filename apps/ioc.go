@@ -1,8 +1,6 @@
 package apps
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,8 +31,6 @@ func RegistryImpl(service Service) {
 		panic("Service is registered")
 	}
 
-	fmt.Println(service.Name(), service)
-
 	// 维护起来
 	services[service.Name()] = service
 }
@@ -64,6 +60,13 @@ func RegistryGin(hdl HTTPHandler) {
 
 	// 维护起来
 	httpHandler[hdl.Name()] = hdl
+}
+
+func LoadedGinHandler() (names []string) {
+	for k, _ := range httpHandler {
+		names = append(names, k)
+	}
+	return names
 }
 
 // InitGinHandler 初始化所有的 HTTP handler

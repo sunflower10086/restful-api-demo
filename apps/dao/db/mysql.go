@@ -31,7 +31,6 @@ func Init() error {
 		conf.C().MySQL.Port,
 		conf.C().MySQL.Database,
 	)
-	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err

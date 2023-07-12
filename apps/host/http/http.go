@@ -38,9 +38,9 @@ func (h *Handler) Config() error {
 	return fmt.Errorf("%s does not implement the %s Service interface", apps.AppName, apps.AppName)
 }
 
-func (h *Handler) RouteRegistry(r *gin.Engine) {
-	r.POST("/hosts", h.createHost)
-	r.GET("/", func(c *gin.Context) {
+func (h *Handler) RouteRegistry(g *gin.Engine) {
+	g.POST("/hosts", h.createHost)
+	g.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "hello, world")
 	})
 }

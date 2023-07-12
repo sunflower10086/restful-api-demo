@@ -1,7 +1,7 @@
 package http
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +11,7 @@ import (
 
 var handler = &Handler{}
 
+// 自注册到Ioc层
 func init() {
 	apps.RegistryGin(handler)
 }
@@ -28,12 +29,13 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) Config() error {
-	if apps.HostService == nil {
-		return errors.New("请注册HostService实例")
+	hostService := apps.GetImpl(apps.AppName)
+	if v, ok := hostService.(host.Service); ok {
+		h.svc = v
+		return nil
 	}
 
-	h.svc = apps.HostService
-	return nil
+	return fmt.Errorf("%s does not implement the %s Service interface", apps.AppName, apps.AppName)
 }
 
 func (h *Handler) RouteRegistry(r *gin.Engine) {

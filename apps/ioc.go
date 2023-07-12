@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sunflower10086/restful-api-demo/apps/host"
 )
 
 // IOC 容器层
@@ -24,7 +23,6 @@ type HTTPHandler interface {
 
 // HostService HTTP模块依赖于IOC中的HostService
 var (
-	HostService host.Service
 	services    = map[string]Service{}
 	httpHandler = map[string]HTTPHandler{}
 )
@@ -37,11 +35,18 @@ func RegistryImpl(service Service) {
 
 	fmt.Println(service.Name(), service)
 
+	// 维护起来
 	services[service.Name()] = service
+}
 
-	if v, ok := service.(host.Service); ok {
-		HostService = v
+func GetImpl(name string) interface{} {
+	for s, service := range services {
+		if s == name {
+			return service
+		}
 	}
+
+	return nil
 }
 
 // InitImpl Ioc初始化所有自己实现的服务
@@ -57,6 +62,7 @@ func RegistryGin(hdl HTTPHandler) {
 		panic("Handler is registered")
 	}
 
+	// 维护起来
 	httpHandler[hdl.Name()] = hdl
 }
 

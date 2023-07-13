@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -18,9 +19,10 @@ var RootCmd = &cobra.Command{
 	Example: "demo API后端 commands",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if vers {
-			fmt.Printf("demo-api version %s\n", version.Version)
+			fmt.Println(version.FullVersion())
+			return nil
 		}
-		return nil
+		return errors.New("no flags find")
 	},
 }
 

@@ -38,7 +38,6 @@ func NewHostServiceImpl() *HostServiceImpl {
 	return &HostServiceImpl{
 		l: log.New(os.Stderr, "  [Host] ", log.Ldate|log.Ltime|log.Lshortfile),
 	}
-
 }
 
 func (h *HostServiceImpl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, error) {
